@@ -124,8 +124,9 @@ const handleCallback = async (req, res) => {
     const longLivedToken = longTokenRes.data.access_token;
     console.log('[DEBUG] Long-lived token obtained (valid 60 days)');
 
-    // Pass token + user_id back to frontend to complete the connection
-    res.redirect(`http://localhost:5173/connect-ig?token=${longLivedToken}&ig_user_id=${igUserId}`);
+    // Pass token + user_id back to frontend to complete the connection (dynamic redirect based on environment)
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/connect-ig?token=${longLivedToken}&ig_user_id=${igUserId}`);
 
   } catch (err) {
     console.error('OAuth Callback Error:', err.response ? JSON.stringify(err.response.data) : err.message);
