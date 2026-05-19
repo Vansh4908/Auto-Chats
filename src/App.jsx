@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useAuth } from "./context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config";
 
 const C = {
   orange: "#00bfa5", orangeLight: "#e0f2f1", orangeMid: "#b2dfdb",
@@ -512,7 +513,7 @@ const ConnectPage = ({ onConnected }) => {
     setError(null);
     try {
       // Fetch the Instagram OAuth URL from the backend
-      const res = await fetch('http://localhost:5000/api/ig/auth-url', {
+      const res = await fetch(`${API_BASE_URL}/api/ig/auth-url`, {
         headers: { Authorization: `Bearer ${user?.token}` }
       });
       if (!res.ok) throw new Error('Failed to get auth URL');
@@ -676,7 +677,7 @@ const TemplateCampaignWizard = ({ post, onClose }) => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/templates', {
+        const res = await fetch(`${API_BASE_URL}/api/templates`, {
           headers: { Authorization: `Bearer ${user?.token}` }
         });
         if (res.ok) {
@@ -711,7 +712,7 @@ const TemplateCampaignWizard = ({ post, onClose }) => {
         postId: post.igPostId || post._id || post.id,
         status: 'active'
       };
-      const res = await fetch('http://localhost:5000/api/campaigns', {
+      const res = await fetch(`${API_BASE_URL}/api/campaigns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` },
         body: JSON.stringify(body)
@@ -870,7 +871,7 @@ const CustomCampaignWizard = ({ post, onClose }) => {
         followMessage: data.followMessage || 'To claim your link, you must follow our account first! Click below to follow.',
         followBtnLabel: data.followBtnLabel || 'Send Link'
       };
-      const res = await fetch('http://localhost:5000/api/campaigns', {
+      const res = await fetch(`${API_BASE_URL}/api/campaigns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` },
         body: JSON.stringify(body)
@@ -1810,7 +1811,7 @@ const PlannerPage = ({ campaigns, onToggleStatus, onDeleteCampaign, onCampaignCr
         followMessage: rule.followMessage || 'To claim your link, you must follow our account first! Click below to follow.',
         followBtnLabel: rule.followBtnLabel || 'Send Link'
       };
-      const res = await fetch('http://localhost:5000/api/campaigns', {
+      const res = await fetch(`${API_BASE_URL}/api/campaigns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` },
         body: JSON.stringify(body)
@@ -2114,7 +2115,7 @@ const LearnPage = ({ onUpgrade }) => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/videos', {
+        const res = await fetch(`${API_BASE_URL}/api/videos`, {
           headers: { Authorization: `Bearer ${user?.token}` }
         });
         if (res.ok) {
@@ -2151,7 +2152,7 @@ const LearnPage = ({ onUpgrade }) => {
               <div key={v._id} className="video-card">
                 <div style={{ borderRadius: "10px 10px 0 0", overflow: "hidden", background: "#1C1917" }}>
                   <video
-                    src={`http://localhost:5000${v.videoUrl}`}
+                    src={`${API_BASE_URL}${v.videoUrl}`}
                     style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }}
                     controls
                   />
@@ -2205,7 +2206,7 @@ const SettingsPage = ({ onUpgrade, userProfile, totalSent, onProfileUpdate }) =>
     setSaving(true);
     setSaveMsg('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/profile', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone, notifs: profile.notifs })
@@ -2226,7 +2227,7 @@ const SettingsPage = ({ onUpgrade, userProfile, totalSent, onProfileUpdate }) =>
 
   const disconnectIg = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/ig/disconnect', {
+      const res = await fetch(`${API_BASE_URL}/api/ig/disconnect`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -2526,7 +2527,7 @@ export default function App() {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
       
-      const pRes = await fetch('http://localhost:5000/api/ig/posts', { headers });
+      const pRes = await fetch(`${API_BASE_URL}/api/ig/posts`, { headers });
       if (pRes.ok) {
         const pData = await pRes.json();
         setPosts(Array.isArray(pData) ? pData : []);
@@ -2534,7 +2535,7 @@ export default function App() {
         setPosts([]);
       }
       
-      const cRes = await fetch('http://localhost:5000/api/campaigns', { headers });
+      const cRes = await fetch(`${API_BASE_URL}/api/campaigns`, { headers });
       if (cRes.ok) {
         const cData = await cRes.json();
         setCampaigns(Array.isArray(cData) ? cData : []);
@@ -2542,7 +2543,7 @@ export default function App() {
         setCampaigns([]);
       }
       
-      const uRes = await fetch('http://localhost:5000/api/auth/me', { headers });
+      const uRes = await fetch(`${API_BASE_URL}/api/auth/me`, { headers });
       if (uRes.ok) {
         const userData = await uRes.json();
         setUserProfile(userData);
@@ -2575,7 +2576,7 @@ export default function App() {
   const handleToggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === "active" ? "paused" : "active";
     try {
-      await fetch(`http://localhost:5000/api/campaigns/${id}`, {
+      await fetch(`${API_BASE_URL}/api/campaigns/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -2592,7 +2593,7 @@ export default function App() {
   const handleDeleteCampaign = async (id) => {
     if (!window.confirm("Are you sure you want to delete this campaign?")) return;
     try {
-      await fetch(`http://localhost:5000/api/campaigns/${id}`, {
+      await fetch(`${API_BASE_URL}/api/campaigns/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -2634,7 +2635,7 @@ export default function App() {
     };
     
     try {
-      await fetch('http://localhost:5000/api/ig/webhooks', {
+      await fetch(`${API_BASE_URL}/api/ig/webhooks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

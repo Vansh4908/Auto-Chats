@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Users, FileText, Video, Upload, Plus, Trash2, LogOut, Tag, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -42,9 +43,9 @@ export default function AdminDashboard() {
     try {
       const headers = { Authorization: `Bearer ${user.token}` };
       const [usersRes, templatesRes, videosRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/users', { headers }),
-        fetch('http://localhost:5000/api/admin/templates', { headers }),
-        fetch('http://localhost:5000/api/admin/videos', { headers })
+        fetch(`${API_BASE_URL}/api/admin/users`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/templates`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/videos`, { headers })
       ]);
       const users = await usersRes.json();
       const templates = await templatesRes.json();
@@ -63,7 +64,7 @@ export default function AdminDashboard() {
   const handleCreateTemplate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/admin/templates', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/templates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +85,7 @@ export default function AdminDashboard() {
   const handleDeleteTemplate = async (id) => {
     if (!window.confirm('Delete this template? Users will no longer see it.')) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/templates/${id}`, {
+      await fetch(`${API_BASE_URL}/api/admin/templates/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -104,7 +105,7 @@ export default function AdminDashboard() {
     formData.append('description', newVideo.description);
     formData.append('video', newVideo.file);
     try {
-      const res = await fetch('http://localhost:5000/api/admin/videos', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/videos`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${user.token}` },
         body: formData
@@ -123,7 +124,7 @@ export default function AdminDashboard() {
   const handleDeleteVideo = async (id) => {
     if (!window.confirm('Delete this video? It will be removed for all users.')) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/videos/${id}`, {
+      await fetch(`${API_BASE_URL}/api/admin/videos/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -436,7 +437,7 @@ export default function AdminDashboard() {
                       {data.videos.map(v => (
                         <div key={v._id} style={{ background: 'white', borderRadius: 14, border: '1px solid #E7E5E4', overflow: 'hidden' }}>
                           <video
-                            src={`http://localhost:5000${v.videoUrl}`}
+                            src={`${API_BASE_URL}${v.videoUrl}`}
                             style={{ width: '100%', height: 160, objectFit: 'cover', background: '#1C1917', display: 'block' }}
                             controls
                           />

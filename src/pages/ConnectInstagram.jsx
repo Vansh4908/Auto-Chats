@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const Instagram = ({ size = 24, color = "currentColor" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -32,7 +33,7 @@ export default function ConnectInstagram() {
   const handleTokenConnection = async (token, igUserId) => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/ig/connect', {
+      const res = await fetch(`${API_BASE_URL}/api/ig/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export default function ConnectInstagram() {
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/ig/auth-url', {
+      const res = await fetch(`${API_BASE_URL}/api/ig/auth-url`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await res.json();
