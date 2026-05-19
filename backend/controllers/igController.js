@@ -215,6 +215,25 @@ const getPosts = async (req, res) => {
     }
 
     try {
+      // Fetch fresh profile details from Instagram Graph API to keep follower count completely fresh!
+      try {
+        const freshProfileRes = await axios.get(`https://graph.instagram.com/me`, {
+          params: {
+            fields: 'followers_count,profile_picture_url',
+            access_token: user.instagram.accessToken
+          }
+        });
+        if (freshProfileRes.data) {
+          user.instagram.followers = freshProfileRes.data.followers_count || 0;
+          if (freshProfileRes.data.profile_picture_url) {
+            user.instagram.profilePic = freshProfileRes.data.profile_picture_url;
+          }
+          await user.save();
+        }
+      } catch (profileErr) {
+        console.error('Error updating live followers count:', profileErr.message);
+      }
+
       // Fetch from Instagram Graph API (instagram.com login path uses graph.instagram.com)
       const postsRes = await axios.get(`https://graph.instagram.com/me/media`, {
         params: {
