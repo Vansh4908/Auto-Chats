@@ -2564,7 +2564,7 @@ export default function App() {
   useEffect(() => {
     if (user) {
       const userId = user.email || user._id || 'guest';
-      const dismissed = localStorage.getItem(`tutorialDismissed_${userId}`) || localStorage.getItem('tutorialDismissed');
+      const dismissed = localStorage.getItem(`tutorialDismissed_${userId}`);
       if (!dismissed) {
         setShowTutorial(true);
       } else {
@@ -2580,7 +2580,6 @@ export default function App() {
       const userId = user.email || user._id || 'guest';
       localStorage.setItem(`tutorialDismissed_${userId}`, 'true');
     }
-    localStorage.setItem('tutorialDismissed', 'true');
     setShowTutorial(false);
   };
 
