@@ -2558,17 +2558,28 @@ export default function App() {
     fetchData();
     // Refresh data every 30 seconds for real-time feel
     const interval = setInterval(fetchData, 30000);
-    
-    // Check tutorial state
-    const dismissed = localStorage.getItem('tutorialDismissed');
-    if (!dismissed) {
-      setShowTutorial(true);
-    }
-    
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      const userId = user.email || user._id || 'guest';
+      const dismissed = localStorage.getItem(`tutorialDismissed_${userId}`) || localStorage.getItem('tutorialDismissed');
+      if (!dismissed) {
+        setShowTutorial(true);
+      } else {
+        setShowTutorial(false);
+      }
+    } else {
+      setShowTutorial(false);
+    }
+  }, [user]);
+
   const handleTutorialComplete = () => {
+    if (user) {
+      const userId = user.email || user._id || 'guest';
+      localStorage.setItem(`tutorialDismissed_${userId}`, 'true');
+    }
     localStorage.setItem('tutorialDismissed', 'true');
     setShowTutorial(false);
   };
