@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import App from './App.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
+import VerifyOtp from './pages/VerifyOtp.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import ConnectInstagram from './pages/ConnectInstagram.jsx'
 
@@ -30,6 +31,7 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
           
           <Route path="/admin/*" element={
             <AdminRoute>

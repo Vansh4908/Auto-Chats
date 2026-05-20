@@ -20,7 +20,9 @@ export default function Signup() {
 
     const result = await signup(firstName, lastName, email, password);
     if (result.success) {
-      if (result.user.role === 'admin') {
+      if (result.otpRequired) {
+        navigate(`/verify-otp?email=${encodeURIComponent(result.email)}&flow=signup`);
+      } else if (result.user.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/connect-ig');

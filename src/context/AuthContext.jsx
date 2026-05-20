@@ -27,6 +27,9 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (response.ok) {
+        if (data.otpRequired) {
+          return { success: true, otpRequired: true, email: data.email };
+        }
         localStorage.setItem('userInfo', JSON.stringify(data));
         setUser(data);
         return { success: true, user: data };
@@ -49,9 +52,54 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       if (response.ok) {
+        if (data.otpRequired) {
+          return { success: true, otpRequired: true, email: data.email };
+        }
         localStorage.setItem('userInfo', JSON.stringify(data));
         setUser(data);
         return { success: true, user: data };
+      } else {
+        return { success: false, error: data.message };
+      }
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const verifyOtp = async (email, otpCode) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otpCode }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('userInfo', JSON.stringify(data));
+        setUser(data);
+        return { success: true, user: data };
+      } else {
+        return { success: false, error: data.message };
+      }
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+
+  const resendOtp = async (email) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, message: data.message };
       } else {
         return { success: false, error: data.message };
       }
@@ -74,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateIgConnection }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, verifyOtp, resendOtp, logout, updateIgConnection }}>
       {!loading && children}
     </AuthContext.Provider>
   );

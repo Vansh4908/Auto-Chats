@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
     profilePic: { type: String },
     isBusinessAccount: { type: Boolean, default: false },
     accessToken: { type: String }
-  }
+  },
+  isVerified: { type: Boolean, default: false },
+  otpCode: { type: String },
+  otpExpires: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

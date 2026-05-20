@@ -18,7 +18,9 @@ export default function Login() {
 
     const result = await login(email, password);
     if (result.success) {
-      if (result.user.role === 'admin') {
+      if (result.otpRequired) {
+        navigate(`/verify-otp?email=${encodeURIComponent(result.email)}&flow=login`);
+      } else if (result.user.role === 'admin') {
         navigate('/admin');
       } else if (!result.user.instagramConnected) {
         navigate('/connect-ig');
