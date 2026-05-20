@@ -170,6 +170,13 @@ const connectAccount = async (req, res) => {
     // Save to User Model
     console.log(req.user);
     const user = await User.findById(req.user.id);
+
+    // Clear old cached posts if connecting a different Instagram account
+    if (user.instagram && user.instagram.accountId !== igProfile.id) {
+      console.log(`[DEBUG] Clearing old cached posts due to Instagram account change from ${user.instagram.accountId} to ${igProfile.id}`);
+      await Post.deleteMany({ user: user._id });
+    }
+
     user.instagram = {
       accountId: igProfile.id,
       username: igProfile.username,
@@ -198,6 +205,10 @@ const disconnectAccount = async (req, res) => {
     const user = await User.findById(req.user.id);
     user.instagram = undefined;
     await user.save();
+
+    // Clear cached posts associated with this user
+    await Post.deleteMany({ user: user._id });
+
     res.json({ message: 'Instagram Account disconnected successfully!' });
   } catch (error) {
     res.status(500).json({ message: error.message });
