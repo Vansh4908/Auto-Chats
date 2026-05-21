@@ -262,6 +262,21 @@ const css = `
 
   /* preview badges */
   .preview-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+
+  /* custom scrollbar for posts panel */
+  .posts-scroll-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+  .posts-scroll-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .posts-scroll-panel::-webkit-scrollbar-thumb {
+    background: ${C.orangeMid};
+    border-radius: 4px;
+  }
+  .posts-scroll-panel::-webkit-scrollbar-thumb:hover {
+    background: ${C.orange};
+  }
 `;
 
 // ── Icons ──────────────────────────────────────────────────────────────────
@@ -1513,6 +1528,9 @@ const CampaignsPage = ({ posts, campaigns, onToggleStatus, onCampaignCreated, on
   const [selectedPost, setSelectedPost] = useState(null);
   const [wizard, setWizard] = useState(null);
   const [tab, setTab] = useState("all");
+  const [postsPerPage, setPostsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const safeCampaigns = Array.isArray(campaigns) ? campaigns : [];
   const safePosts = Array.isArray(posts) ? posts : [];
   const filtered = tab === "all" ? safeCampaigns : safeCampaigns.filter(c => c.status === tab);
@@ -1538,6 +1556,13 @@ const CampaignsPage = ({ posts, campaigns, onToggleStatus, onCampaignCreated, on
 
   const normalisedPosts = safePosts.map(normalisePost);
 
+  // Pagination logic
+  const totalPages = Math.ceil(normalisedPosts.length / postsPerPage) || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const indexOfLastPost = safeCurrentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = normalisedPosts.slice(indexOfFirstPost, indexOfLastPost);
+
   return (
     <div className="page fade-in">
       <div style={{ marginBottom: "1.5rem" }}>
@@ -1550,12 +1575,28 @@ const CampaignsPage = ({ posts, campaigns, onToggleStatus, onCampaignCreated, on
             <h3 style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15, marginBottom: 2 }}>Select a Post</h3>
             <p style={{ fontSize: 12.5, color: C.mid }}>Pick any post or reel to create a DM campaign for it</p>
           </div>
-          {selectedPost && (
-            <div style={{ display: "flex", gap: 8 }}>
-              <button className="btn btn-secondary btn-sm" onClick={() => setWizard("template")}><Icon name="zap" size={13} /> Use Template</button>
-              <button className="btn btn-primary btn-sm" onClick={() => setWizard("custom")}><Icon name="plus" size={13} /> Build Campaign</button>
-            </div>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {normalisedPosts.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 12, color: C.mid, fontWeight: 500 }}>Show:</span>
+                <select 
+                  value={postsPerPage} 
+                  onChange={(e) => { setPostsPerPage(Number(e.target.value)); setCurrentPage(1); }} 
+                  style={{ width: "auto", padding: "4px 8px", fontSize: "13px", height: "32px", borderRadius: "8px", borderColor: C.border, background: C.white, cursor: "pointer" }}
+                >
+                  <option value={10}>10 posts</option>
+                  <option value={20}>20 posts</option>
+                  <option value={30}>30 posts</option>
+                </select>
+              </div>
+            )}
+            {selectedPost && (
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => setWizard("template")}><Icon name="zap" size={13} /> Use Template</button>
+                <button className="btn btn-primary btn-sm" onClick={() => setWizard("custom")}><Icon name="plus" size={13} /> Build Campaign</button>
+              </div>
+            )}
+          </div>
         </div>
 
         {normalisedPosts.length === 0 ? (
@@ -1565,39 +1606,73 @@ const CampaignsPage = ({ posts, campaigns, onToggleStatus, onCampaignCreated, on
             <p className="empty-sub">Connect your professional Instagram account to see your delicious food posts here.</p>
           </div>
         ) : (
-          <div className="post-grid">
-            {normalisedPosts.map(post => (
-              <div
-                key={post.id}
-                className={`post-card ${isSelected(post) ? "selected" : ""}`}
-                onClick={() => setSelectedPost(isSelected(post) ? null : post)}
-              >
-                <div className="post-thumb" style={{ overflow: "hidden" }}>
-                  {post.mediaUrl ? (
-                    post.type === "reel" || post.mediaType === "VIDEO" ? (
-                      <video src={post.mediaUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />
-                    ) : (
-                      <img src={post.mediaUrl} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    )
-                  ) : (
-                    <span style={{ fontSize: 36 }}>{post.emoji}</span>
-                  )}
-                  {isSelected(post) && (
-                    <div style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: C.orange, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Icon name="check" size={13} color="white" />
+          <>
+            <div className="posts-scroll-panel" style={{ maxHeight: "480px", overflowY: "auto", paddingRight: "6px", marginBottom: "1rem" }}>
+              <div className="post-grid">
+                {currentPosts.map(post => (
+                  <div
+                    key={post.id}
+                    className={`post-card ${isSelected(post) ? "selected" : ""}`}
+                    onClick={() => setSelectedPost(isSelected(post) ? null : post)}
+                  >
+                    <div className="post-thumb" style={{ overflow: "hidden" }}>
+                      {post.mediaUrl ? (
+                        post.type === "reel" || post.mediaType === "VIDEO" ? (
+                          <video src={post.mediaUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />
+                        ) : (
+                          <img src={post.mediaUrl} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        )
+                      ) : (
+                        <span style={{ fontSize: 36 }}>{post.emoji}</span>
+                      )}
+                      {isSelected(post) && (
+                        <div style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: C.orange, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Icon name="check" size={13} color="white" />
+                        </div>
+                      )}
+                      <div style={{ position: "absolute", top: 8, left: 8 }}>
+                        <span className={`tag ${post.type === "reel" || post.type === "VIDEO" ? "tag-purple" : post.type === "carousel" ? "tag-blue" : "tag-blue"}`} style={{ fontSize: 10, padding: "2px 7px" }}>{post.type}</span>
+                      </div>
                     </div>
-                  )}
-                  <div style={{ position: "absolute", top: 8, left: 8 }}>
-                    <span className={`tag ${post.type === "reel" || post.type === "VIDEO" ? "tag-purple" : post.type === "carousel" ? "tag-blue" : "tag-blue"}`} style={{ fontSize: 10, padding: "2px 7px" }}>{post.type}</span>
+                    <div className="post-info">
+                      <p className="post-title">{post.title}</p>
+                      <p className="post-meta">{post.platform} · {post.date} · ❤️ {post.likes}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="post-info">
-                  <p className="post-title">{post.title}</p>
-                  <p className="post-meta">{post.platform} · {post.date} · ❤️ {post.likes}</p>
+                ))}
+              </div>
+            </div>
+
+            {/* Pagination controls at the bottom */}
+            {totalPages > 1 && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem", paddingTop: "1rem", borderTop: `1px solid ${C.border}` }}>
+                <span style={{ fontSize: 13, color: C.mid, fontWeight: 500 }}>
+                  Showing <strong>{indexOfFirstPost + 1}-{Math.min(indexOfLastPost, normalisedPosts.length)}</strong> of <strong>{normalisedPosts.length}</strong> posts
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={safeCurrentPage === 1}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", opacity: safeCurrentPage === 1 ? 0.5 : 1, cursor: safeCurrentPage === 1 ? "not-allowed" : "pointer" }}
+                  >
+                    <Icon name="arrow_left" size={13} /> Previous
+                  </button>
+                  <span style={{ fontSize: 13, color: C.dark, fontWeight: 700, padding: "0 8px" }}>
+                    Page {safeCurrentPage} of {totalPages}
+                  </span>
+                  <button 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={safeCurrentPage === totalPages}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", opacity: safeCurrentPage === totalPages ? 0.5 : 1, cursor: safeCurrentPage === totalPages ? "not-allowed" : "pointer" }}
+                  >
+                    Next <Icon name="arrow_right" size={13} />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         {selectedPost && (
