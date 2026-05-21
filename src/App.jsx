@@ -550,7 +550,7 @@ const ConnectPage = ({ onConnected }) => {
             <path d="M8 14c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
             <circle cx="14" cy="14" r="2" fill="white" />
           </svg>
-          <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 800, fontSize: 18, color: C.dark }}>Auto Chats</span>
+           <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 800, fontSize: 18, color: C.dark }}>AutoDM</span>
         </div>
         <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Connect Instagram Account ✨</h1>
         <p style={{ fontSize: 13.5, color: C.mid, marginBottom: 0 }}>Only a few steps away from more orders!</p>
@@ -2211,7 +2211,7 @@ const LearnPage = ({ onUpgrade }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ fontSize: 36 }}>🎓</div>
           <div>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 800, fontSize: 16, marginBottom: 2 }}>Start with the Auto Chats masterclass</p>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 800, fontSize: 16, marginBottom: 2 }}>Start with the AutoDM masterclass</p>
             <p style={{ fontSize: 12.5, opacity: 0.85 }}>Unlock all premium tutorials — grow your restaurant faster</p>
           </div>
         </div>
@@ -2221,7 +2221,7 @@ const LearnPage = ({ onUpgrade }) => {
       {/* Live videos uploaded by admin */}
       {liveVideos.length > 0 && (
         <div style={{ marginBottom: "1.75rem" }}>
-          <h3 style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 700, marginBottom: "1rem" }}>📹 Videos from Auto Chats Team</h3>
+          <h3 style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 700, marginBottom: "1rem" }}>📹 Videos from AutoDM Team</h3>
           <div className="grid-3">
             {liveVideos.map(v => (
               <div key={v._id} className="video-card">
@@ -2514,7 +2514,7 @@ const TutorialModal = ({ onComplete }) => {
     {
       icon: "🎓",
       title: "Step 3: Watch Learning Videos",
-      desc: "If you need more help or want to learn advanced marketing strategies, check out our Learn section! It features detailed video tutorials created by the Auto Chats team showing you exactly how to set up, optimize, and scale your DM flows to drive more sales.",
+      desc: "If you need more help or want to learn advanced marketing strategies, check out our Learn section! It features detailed video tutorials created by the AutoDM team showing you exactly how to set up, optimize, and scale your DM flows to drive more sales.",
       color: C.indigo, bg: C.indigoLight
     }
   ];
