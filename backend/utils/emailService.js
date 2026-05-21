@@ -28,13 +28,32 @@ const sendOtpEmail = async (email, code) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: {
+    // Create a flexible transport options object
+    const transportOptions = {};
+
+    if (process.env.EMAIL_HOST) {
+      // If custom SMTP host (like smtp.resend.com) is provided, use it!
+      transportOptions.host = process.env.EMAIL_HOST;
+      transportOptions.port = parseInt(process.env.EMAIL_PORT || '587');
+      transportOptions.secure = process.env.EMAIL_SECURE === 'true' || process.env.EMAIL_PORT === '465';
+      transportOptions.auth = {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
-      },
-    });
+      };
+      // For SSL/TLS and modern firewalls, rejectUnauthorized: false ensures connection success
+      transportOptions.tls = {
+        rejectUnauthorized: false
+      };
+    } else {
+      // Fallback/Default to standard Gmail
+      transportOptions.service = process.env.EMAIL_SERVICE || 'gmail';
+      transportOptions.auth = {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      };
+    }
+
+    const transporter = nodemailer.createTransport(transportOptions);
 
     const mailOptions = {
       from: `"FoodChow Auth" <${process.env.EMAIL_USER}>`,
