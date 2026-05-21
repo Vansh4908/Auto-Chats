@@ -2446,8 +2446,8 @@ const SidebarNav = ({ page, setPage, onUpgrade, isConnected, connectedPlatform, 
   return (
     <div className="sidebar">
       <div className="sidebar-logo">
-        <div style={{ width: 32, height: 32, background: C.orange, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 900 }}>AC</div>
-        <div>Auto<span>Chats</span></div>
+        <div style={{ width: 32, height: 32, background: C.orange, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 900 }}>AD</div>
+        <div>Auto<span>DM</span></div>
       </div>
       <div className="sidebar-user" style={{ cursor: "pointer", transition: "background 0.2s" }} onMouseOver={e => e.currentTarget.style.background = C.orangeLight} onMouseOut={e => e.currentTarget.style.background = 'transparent'} onClick={() => setPage('settings')}>
         {userProfile?.instagram?.profilePic ? (
