@@ -59,8 +59,8 @@ const signup = async (req, res) => {
     }
 
     if (user) {
-      // Send OTP (logs to console or sends real email)
-      await sendOtpEmail(user.email, otpCode);
+      // Send OTP in background (no await) to ensure instant redirection for the user
+      sendOtpEmail(user.email, otpCode);
 
       res.status(200).json({
         otpRequired: true,
@@ -107,7 +107,8 @@ const login = async (req, res) => {
       adminUser.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
       await adminUser.save();
 
-      await sendOtpEmail(adminUser.email, otpCode);
+      // Send OTP in background (no await) to ensure instant redirection for the admin
+      sendOtpEmail(adminUser.email, otpCode);
 
       return res.json({
         otpRequired: true,
@@ -125,8 +126,8 @@ const login = async (req, res) => {
       user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
       await user.save();
 
-      // Send the OTP email
-      await sendOtpEmail(user.email, otpCode);
+      // Send OTP in background (no await) to ensure instant redirection for the user
+      sendOtpEmail(user.email, otpCode);
 
       res.json({
         otpRequired: true,
@@ -204,7 +205,8 @@ const resendOtp = async (req, res) => {
     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    await sendOtpEmail(user.email, otpCode);
+    // Send OTP in background (no await)
+    sendOtpEmail(user.email, otpCode);
 
     res.status(200).json({ message: 'Verification OTP sent to your email.' });
   } catch (error) {
