@@ -19,7 +19,8 @@ const sendOtpEmail = async (email, code) => {
   if (!isSmtpConfigured) {
     console.log('⚠️   Note: SMTP credentials are not configured. Using console log fallback.');
   } else {
-    console.log(`📧  Status: Attempting to send real email via ${process.env.EMAIL_SERVICE || 'Gmail'}...`);
+    const provider = process.env.EMAIL_HOST || process.env.EMAIL_SERVICE || 'Gmail';
+    console.log(`📧  Status: Attempting to send real email via ${provider}...`);
   }
   console.log('='.repeat(60) + '\n');
 
@@ -55,8 +56,15 @@ const sendOtpEmail = async (email, code) => {
 
     const transporter = nodemailer.createTransport(transportOptions);
 
+    // Determine the sender address.
+    // If using Resend and username is 'resend', we must send from 'onboarding@resend.dev' or a verified domain.
+    const fromEmail = process.env.EMAIL_FROM || 
+      (process.env.EMAIL_HOST === 'smtp.resend.com' && process.env.EMAIL_USER === 'resend' 
+        ? 'onboarding@resend.dev' 
+        : process.env.EMAIL_USER);
+
     const mailOptions = {
-      from: `"FoodChow Auth" <${process.env.EMAIL_USER}>`,
+      from: `"FoodChow Auth" <${fromEmail}>`,
       to: email,
       subject: 'FoodChow Verification Code',
       html: `
