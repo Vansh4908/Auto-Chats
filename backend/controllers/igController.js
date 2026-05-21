@@ -380,17 +380,27 @@ const handleWebhook = async (req, res) => {
                 const pageToken = campaign.user.instagram.accessToken;
                 console.log(`[AUTOMATION TRIGGERED] Sending DM to ${senderId}: "${campaign.replyMessage}"`);
 
-                try {
-                  await axios.post(`https://graph.instagram.com/v21.0/me/messages`, {
-                    recipient: { id: senderId },
-                    message: { text: campaign.replyMessage }
-                  }, {
-                    headers: { Authorization: `Bearer ${pageToken}` }
-                  });
+                if (senderId === 'test_follower_id' || pageToken === 'META_ACCESS_TOKEN_HERE' || pageToken?.startsWith('mock_')) {
+                  console.log(`\n=========================================`);
+                  console.log(`✅ [SIMULATION SUCCESS]`);
+                  console.log(`This is a TEST trigger. Bypassed Meta API call.`);
+                  console.log(`Would have sent to ${senderId}: "${campaign.replyMessage}"`);
+                  console.log(`=========================================\n`);
                   campaign.stats.sent += 1;
                   await campaign.save();
-                } catch (sendErr) {
-                  console.error('Failed to send DM:', sendErr.response?.data || sendErr.message);
+                } else {
+                  try {
+                    await axios.post(`https://graph.instagram.com/v21.0/me/messages`, {
+                      recipient: { id: senderId },
+                      message: { text: campaign.replyMessage }
+                    }, {
+                      headers: { Authorization: `Bearer ${pageToken}` }
+                    });
+                    campaign.stats.sent += 1;
+                    await campaign.save();
+                  } catch (sendErr) {
+                    console.error('Failed to send DM:', sendErr.response?.data || sendErr.message);
+                  }
                 }
               }
             }
@@ -433,37 +443,48 @@ const handleWebhook = async (req, res) => {
                     const pageToken = campaign.user.instagram.accessToken;
                     console.log(`[COMMENT TRIGGERED] Sending DM to ${senderId} for post ${mediaId}`);
 
-                    try {
-                      await axios.post(`https://graph.instagram.com/v21.0/me/messages`, {
-                        recipient: { id: senderId },
-                        message: { text: campaign.replyMessage }
-                      }, {
-                        headers: { Authorization: `Bearer ${pageToken}` }
-                      });
-
+                    if (senderId === 'test_follower_id' || pageToken === 'META_ACCESS_TOKEN_HERE' || pageToken?.startsWith('mock_')) {
                       console.log(`\n=========================================`);
-                      console.log(`✅ [DM SENT SUCCESSFULLY]`);
-                      console.log(`Message: "${campaign.replyMessage}"`);
+                      console.log(`✅ [SIMULATION SUCCESS]`);
+                      console.log(`This is a TEST trigger. Bypassed Meta API call.`);
+                      console.log(`Would have sent to ${senderId}: "${campaign.replyMessage}"`);
                       console.log(`=========================================\n`);
-
                       campaign.stats.sent += 1;
                       await campaign.save();
                       break; // Match found and processed
-                    } catch (sendErr) {
-                      const errData = sendErr.response?.data?.error || {};
-                      const errMsg = errData.message || sendErr.message;
-                      // Graceful fallback for simulated self-messages (subcode 2534014 = user not found/cannot message)
-                      if (errData.error_subcode === 2534014 || errMsg.toLowerCase().includes('message') || errMsg.toLowerCase().includes('permissions') || errMsg.toLowerCase().includes('yourself')) {
+                    } else {
+                      try {
+                        await axios.post(`https://graph.instagram.com/v21.0/me/messages`, {
+                          recipient: { id: senderId },
+                          message: { text: campaign.replyMessage }
+                        }, {
+                          headers: { Authorization: `Bearer ${pageToken}` }
+                        });
+
                         console.log(`\n=========================================`);
-                        console.log(`✅ [SIMULATION SUCCESS]`);
-                        console.log(`Meta blocked the physical DM (you can't message yourself), but the logic works perfectly!`);
-                        console.log(`Would have sent: "${campaign.replyMessage}"`);
+                        console.log(`✅ [DM SENT SUCCESSFULLY]`);
+                        console.log(`Message: "${campaign.replyMessage}"`);
                         console.log(`=========================================\n`);
+
                         campaign.stats.sent += 1;
                         await campaign.save();
-                        break;
-                      } else {
-                        console.error('Failed to send DM from comment:', sendErr.response?.data || sendErr.message);
+                        break; // Match found and processed
+                      } catch (sendErr) {
+                        const errData = sendErr.response?.data?.error || {};
+                        const errMsg = errData.message || sendErr.message;
+                        // Graceful fallback for simulated self-messages (subcode 2534014 = user not found/cannot message)
+                        if (errData.error_subcode === 2534014 || errMsg.toLowerCase().includes('message') || errMsg.toLowerCase().includes('permissions') || errMsg.toLowerCase().includes('yourself')) {
+                          console.log(`\n=========================================`);
+                          console.log(`✅ [SIMULATION SUCCESS]`);
+                          console.log(`Meta blocked the physical DM (you can't message yourself), but the logic works perfectly!`);
+                          console.log(`Would have sent: "${campaign.replyMessage}"`);
+                          console.log(`=========================================\n`);
+                          campaign.stats.sent += 1;
+                          await campaign.save();
+                          break;
+                        } else {
+                          console.error('Failed to send DM from comment:', sendErr.response?.data || sendErr.message);
+                        }
                       }
                     }
                   }

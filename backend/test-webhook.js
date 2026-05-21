@@ -21,7 +21,10 @@ async function runTest() {
   let keyword = 'book';
 
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/foodchow';
+    let mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/foodchow';
+    if (mongoUri.includes('Vansh@1154')) {
+      mongoUri = mongoUri.replace('Vansh@1154', 'Vansh%401154');
+    }
     await mongoose.connect(mongoUri);
     console.log('📦  Connected to MongoDB to fetch test data...');
 
@@ -42,7 +45,7 @@ async function runTest() {
       console.log('    Using fallback mock values for testing.');
     }
   } catch (err) {
-    console.log('⚠️   Could not connect to MongoDB (e.g. offline or incorrect URI).');
+    console.log('⚠️   Could not connect to MongoDB:', err.message);
     console.log('    Proceeding with fallback mock values for testing.');
   } finally {
     try {
@@ -90,7 +93,11 @@ async function runTest() {
       console.log('\n💡  Check your backend server logs to see the automation trigger logs!');
     } catch (err) {
       console.error('\n❌  TEST FAILED:');
-      console.error(err.response ? `${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message);
+      console.error(err.message);
+      if (err.response) {
+        console.error(`Status: ${err.response.status}`);
+        console.error(`Response Data: ${JSON.stringify(err.response.data)}`);
+      }
     }
   } else {
     // 2. Simulate DM Webhook
@@ -125,7 +132,11 @@ async function runTest() {
       console.log('\n💡  Check your backend server logs to see the automation trigger logs!');
     } catch (err) {
       console.error('\n❌  TEST FAILED:');
-      console.error(err.response ? `${err.response.status}: ${JSON.stringify(err.response.data)}` : err.message);
+      console.error(err.message);
+      if (err.response) {
+        console.error(`Status: ${err.response.status}`);
+        console.error(`Response Data: ${JSON.stringify(err.response.data)}`);
+      }
     }
   }
 }
