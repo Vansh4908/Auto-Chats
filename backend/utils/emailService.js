@@ -116,6 +116,12 @@ const sendOtpEmail = async (email, code) => {
     return { success: true, sent: true };
   } catch (error) {
     console.error('❌  Error sending email through nodemailer:', error.message);
+    if (error.response && error.response.status === 403) {
+      console.log('\n💡  [Resend Diagnostic Help] A 403 Forbidden error usually means:');
+      console.log('    - You are using a Resend Sandbox account (onboarding@resend.dev). In sandbox mode, you can ONLY send emails to the single email address you used to sign up for Resend.');
+      console.log('    - To send emails to other addresses (like ' + email + '), you must verify your own custom domain in the Resend dashboard.');
+      console.log('    - Alternatively, ensure your API key (EMAIL_PASS) is fully valid and authorized.\n');
+    }
     console.log('⚠️   Fallback: Authentication will continue. Use the console log OTP above to verify.');
     return { success: true, fallback: true, error: error.message };
   }
